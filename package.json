@@ -1,22 +1,44 @@
 {
-  "name": "core-react",
+  "name": "@tallman5/core-react",
   "version": "1.0.0",
   "private": true,
-  "description": "core-react",
-  "author": "tallman5",
-  "keywords": [
-    "gatsby"
+  "description": "Reusable React components and services",
+  "author": "Joseph McGurkin <joseph@mcgurkin.net>",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "files": [
+    "/dist",
+    "!/dist/**/*.js.map",
+    "!/dist/**/*.tsbuildinfo"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tallman5/core-react"
+  },
+  "homepage": "https://github.com/tallman5/core-react#readme",
+  "bugs": {
+    "url": "https://github.com/tallman5/core-react/issues"
+  },
+  "keywords": [],
+  "types": "dist/index.d.ts",
   "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
     "build": "gatsby build",
-    "serve": "gatsby serve",
     "clean": "gatsby clean",
+    "develop": "gatsby develop",
+    "dist": "tsc --project tsconfig.build.json",
+    "distpack": "tsc --project tsconfig.build.json && npm pack",
+    "serve": "gatsby serve",
+    "start": "gatsby develop",
+    "test": "jest",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
+  "devDependencies": {
     "@mdx-js/react": "^3.0.1",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "bootstrap": "^5.3.3",
     "gatsby": "^5.13.7",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-manifest": "^5.13.1",
@@ -25,13 +47,10 @@
     "gatsby-plugin-sitemap": "^6.13.1",
     "gatsby-source-filesystem": "^5.13.1",
     "gatsby-transformer-sharp": "^5.13.1",
+    "jest": "^29.7.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.19",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19",
+    "react-dom": "^18.2.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.3.3"
   }
 }
