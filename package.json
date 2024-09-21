@@ -1,7 +1,6 @@
 {
   "name": "@tallman5/core-react",
   "version": "1.0.0",
-  "private": true,
   "description": "Reusable React components and services",
   "author": "Joseph McGurkin <joseph@mcgurkin.net>",
   "main": "dist/index.js",
@@ -56,6 +55,8 @@
   },
   "dependencies": {
     "@react-spring/web": "^9.7.4",
-    "@tallman5/core-js": "^1.0.6"
+    "@tallman5/core-js": "^1.0.6",
+    "qrcode": "^1.5.4",
+    "react-use-measure": "^2.1.1"
   }
 }
