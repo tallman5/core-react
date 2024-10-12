@@ -4,5 +4,6 @@ export * from './copyValue';
 export * from './expander';
 export * from './floatingTextbox';
 export * from './masonry';
+export * from './seo';
 export * from './stringify';
 export * from './timeoutBar';
