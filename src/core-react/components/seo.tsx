@@ -12,7 +12,7 @@ export interface ISeo {
     twitterUsername: string
 }
 
-const Seo = ({ siteUrl, siteName, pageTitle, description, pathname, twitterUsername, imagePath, children }: ISeo) => {
+export const Seo = ({ siteUrl, siteName, pageTitle, description, pathname, twitterUsername, imagePath, children }: ISeo) => {
     const headData = {
         fullPateTitle: `${pageTitle} | ${siteName}`,
         description: description,
@@ -56,5 +56,3 @@ const Seo = ({ siteUrl, siteName, pageTitle, description, pathname, twitterUsern
         </>
     )
 }
-
-export default Seo
