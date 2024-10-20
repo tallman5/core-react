@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { copyToClipboard } from '@tallman5/core-js';
 
-interface ICopyValue {
+export interface ICopyValue {
     value: string
 }
 
-const CopyValue = ({ value }: ICopyValue) => {
+export const CopyValue = ({ value }: ICopyValue) => {
     const [buttonText, setButtonText] = useState('Copy')
 
     const copyClicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -26,5 +26,3 @@ const CopyValue = ({ value }: ICopyValue) => {
         </div>
     )
 }
-
-export default CopyValue

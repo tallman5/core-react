@@ -1,6 +1,6 @@
 import React, { ComponentPropsWithoutRef } from 'react';
 
-interface IFloatingTextbox extends ComponentPropsWithoutRef<'input'> {
+export interface IFloatingTextbox extends ComponentPropsWithoutRef<'input'> {
     additionalClassName?: string
     caption: string
     helpText?: string
@@ -8,7 +8,7 @@ interface IFloatingTextbox extends ComponentPropsWithoutRef<'input'> {
     placeholder: string
 }
 
-const FloatingTextbox = ({ additionalClassName = '', caption, helpText = '', id, placeholder, ...rest }: IFloatingTextbox) => {
+export const FloatingTextbox = ({ additionalClassName = '', caption, helpText = '', id, placeholder, ...rest }: IFloatingTextbox) => {
     return (
         <div className="form-floating">
             <input className={"form-control " + additionalClassName} id={id} name={id} placeholder={placeholder} {...rest} />
@@ -21,5 +21,3 @@ const FloatingTextbox = ({ additionalClassName = '', caption, helpText = '', id,
         </div>
     )
 }
-
-export default FloatingTextbox
