@@ -28,16 +28,9 @@ const Header = () => {
                     </button>
                     <div style={{ justifyContent: 'space-between' }} className={(navMenuVisible === true) ? 'collapse navbar-collapse show' : 'collapse navbar-collapse'} id="navbarNavAltMarkup">
                         <div className={'navbar-nav'}>
-                            {/* <Link className={(pathname.startsWith('/monaco')) ? 'nav-link active' : 'nav-link'} to="/monaco/">MONACO</Link>
-                            <Link className={(pathname.startsWith('/posts/about')) ? 'nav-link active' : 'nav-link'} to="/posts/about/">ABOUT</Link>
-                            {
-                                (process.env.NAME === "DEV")
-                                    ? <Link className={(pathname.startsWith('/scratch')) ? 'nav-link active' : 'nav-link'} to="/scratch/">SCRATCH</Link>
-                                    : null
-                            } */}
+                            <Link className={(pathname.startsWith('/seo')) ? 'nav-link active' : 'nav-link'} to="/seo/">SEO</Link>
                         </div>
                         <div className='d-flex'>
-
                         </div>
                     </div>
                 </div>
