@@ -1,7 +1,7 @@
 import * as React from "react"
 import type { HeadFC, PageProps } from "gatsby"
 import Layout from "../components/layout"
-import EnumDropdown from "../core-react/components/enumDropdown"
+import { EnumDropdown } from "../core-react/components/enumDropdown";
 
 enum TestColors {
   Red = "Red",
@@ -10,7 +10,7 @@ enum TestColors {
 }
 
 const IndexPage: React.FC<PageProps> = () => {
-  const [selectedColor, setSelectedColor] = React.useState<keyof typeof TestColors | undefined>(TestColors.Blue);
+  const [color, setColor] = React.useState<keyof typeof TestColors | undefined>(undefined);
 
   return (
     <Layout>
@@ -30,11 +30,11 @@ const IndexPage: React.FC<PageProps> = () => {
         <div className="row">
           <div className="col-2">
             <EnumDropdown enumObject={TestColors}
-              value={selectedColor}
-              onChange={(color) => setSelectedColor(color)}
+              value={color}
+              onChange={(color) => setColor(color)}
               className='form-select' />
           </div>
-          <div className="col">Selected Color: {selectedColor}</div>
+          <div className="col">Selected Color: {color}</div>
         </div>
       </div>
     </Layout>

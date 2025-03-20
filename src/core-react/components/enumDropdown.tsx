@@ -1,38 +1,42 @@
 import React from "react";
 
-interface EnumDropdownProps<T> extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange"> {
-  enumObject: T; // The enum object to populate the dropdown
-  value: keyof T | undefined; // Currently selected value (aligned with HTMLSelectElement's value type)
-  onChange: (value: keyof T) => void; // Callback when a new value is selected
+interface EnumDropdownProps<T extends Record<string, string | number>>
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange"> {
+  enumObject: T;
+  value: keyof T | undefined;
+  onChange: (value: keyof T) => void;
 }
 
-const EnumDropdown = <T extends Record<string, string | number>>({
+export const EnumDropdown = <T extends Record<string, string | number>>({
   enumObject,
   value,
   onChange,
-  ...selectProps // Spread the rest of the select attributes
+  ...selectProps
 }: EnumDropdownProps<T>) => {
-  // Get all enum keys (filter out reverse-mapped keys for numeric enums)
-  const enumKeys = Object.keys(enumObject).filter(
-    (key) => isNaN(Number(key))
+  // Get all enum keys (excluding reverse-mapped numeric keys)
+  const enumKeys = Object.keys(enumObject).filter((key) =>
+    isNaN(Number(key))
   ) as (keyof T)[];
 
   return (
     <select
-      value={value ? String(value) : ""} // Convert value to string
-      onChange={(e) => onChange(e.target.value as keyof T)}
-      {...selectProps} // Pass additional select attributes
+      value={value ? String(value) : ""}
+      onChange={(e) => {
+        const selectedValue = e.target.value;
+        if (enumKeys.includes(selectedValue as keyof T)) {
+          onChange(selectedValue as keyof T);
+        }
+      }}
+      {...selectProps}
     >
-      <option value="" disabled selected>
+      <option value="" disabled>
         Select an option...
       </option>
       {enumKeys.map((key) => (
         <option key={String(key)} value={String(key)}>
-          {String(key)}
+          {String(enumObject[key])} {/* Display value instead of key */}
         </option>
       ))}
     </select>
   );
 };
-
-export default EnumDropdown;

@@ -1,6 +1,6 @@
 {
   "name": "@tallman5/core-react",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Reusable React components and services",
   "author": "Joseph McGurkin <joseph@mcgurkin.net>",
   "main": "dist/index.js",
