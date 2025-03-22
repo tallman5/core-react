@@ -1,6 +1,6 @@
 {
   "name": "@tallman5/core-react",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Reusable React components and services",
   "author": "tallman5",
   "main": "dist/index.js",
@@ -54,7 +54,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@tallman5/core-js": "^1.0.7",
+    "@tallman5/core-js": "^1.0.10",
     "qrcode": "^1.5.4",
     "react-spring": "^9.7.5",
     "react-use-gesture": "^9.1.3",
