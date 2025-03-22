@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
 interface PanZoomProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
-    minScale?: number; // Customizable minimum zoom level
-    maxScale?: number; // Customizable maximum zoom level
+    minScale?: number;
+    maxScale?: number;
 }
 
 export const PanZoom: React.FC<PanZoomProps> = ({
@@ -18,22 +18,20 @@ export const PanZoom: React.FC<PanZoomProps> = ({
     const isPanning = useRef(false);
     const startPosition = useRef({ x: 0, y: 0 });
 
-    // Smooth zooming and panning with requestAnimationFrame
     const targetScale = useRef(scale);
     const targetPosition = useRef(position);
 
-    // Animation loop
     useEffect(() => {
         const animate = () => {
             setScale((prevScale) => {
                 const delta = targetScale.current - prevScale;
-                return prevScale + delta * 0.1; // Smoothly interpolate scale
+                return prevScale + delta * 0.1;
             });
             setPosition((prevPosition) => {
                 const deltaX = targetPosition.current.x - prevPosition.x;
                 const deltaY = targetPosition.current.y - prevPosition.y;
                 return {
-                    x: prevPosition.x + deltaX * 0.2, // Increased interpolation factor for smoother panning
+                    x: prevPosition.x + deltaX * 0.2,
                     y: prevPosition.y + deltaY * 0.2,
                 };
             });
@@ -42,34 +40,29 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         requestAnimationFrame(animate);
     }, []);
 
-    // Handle wheel event for zooming
     const handleWheel = useCallback(
         (event: React.WheelEvent<HTMLDivElement>) => {
             event.preventDefault();
 
-            // Normalize the wheel delta to make the zoom smoother
-            const delta = event.deltaY * -0.001; // Smaller multiplier for smoother zoom
-            const newScale = targetScale.current * (1 + delta);
+            const delta = event.deltaY * -0.001;
+            const newScale = Math.min(Math.max(minScale, targetScale.current * (1 + delta)), maxScale);
 
-            // Clamp the scale between minScale and maxScale
-            targetScale.current = Math.min(Math.max(minScale, newScale), maxScale);
-
-            // Calculate the mouse position relative to the container
             const rect = containerRef.current!.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
 
-            // Adjust the position to keep the zoom focused on the mouse cursor
-            const scaleRatio = targetScale.current / scale;
+            const prevScale = targetScale.current;
+            targetScale.current = newScale;
+
+            const scaleRatio = newScale / prevScale;
             targetPosition.current = {
                 x: mouseX - (mouseX - position.x) * scaleRatio,
                 y: mouseY - (mouseY - position.y) * scaleRatio,
             };
         },
-        [minScale, maxScale, scale, position]
+        [minScale, maxScale, position]
     );
 
-    // Handle mouse down event for panning
     const handleMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         isPanning.current = true;
@@ -97,10 +90,8 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         document.addEventListener('mouseup', handleMouseUp);
     }, [position]);
 
-    // Handle touch events for mobile devices
     const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
         if (event.touches.length === 1) {
-            // Single touch for panning
             event.preventDefault();
             isPanning.current = true;
             startPosition.current = {
@@ -112,7 +103,6 @@ export const PanZoom: React.FC<PanZoomProps> = ({
 
     const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
         if (event.touches.length === 1 && isPanning.current) {
-            // Single touch for panning
             event.preventDefault();
             targetPosition.current = {
                 x: event.touches[0].pageX - startPosition.current.x,
@@ -125,13 +115,11 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         isPanning.current = false;
     }, []);
 
-    // Handle double-click to reset zoom and pan
     const handleDoubleClick = useCallback(() => {
-        targetScale.current = 1; // Reset scale
-        targetPosition.current = { x: 0, y: 0 }; // Reset position
+        targetScale.current = 1;
+        targetPosition.current = { x: 0, y: 0 };
     }, []);
 
-    // Memoized styles for performance optimization
     const containerStyle: React.CSSProperties = useMemo(
         () => ({
             width: '100%',
@@ -144,12 +132,11 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         [props.style]
     );
 
-    // Custom cubic-bezier curve for a "powerful" transition
     const contentStyle: React.CSSProperties = useMemo(
         () => ({
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: '0 0',
-            transition: 'transform 0.3s cubic-bezier(.04,.53,.92,.43)', // Your custom curve
+            transition: 'transform 0.3s cubic-bezier(.04,.53,.92,.43)',
         }),
         [position, scale]
     );

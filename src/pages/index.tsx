@@ -1,7 +1,7 @@
 import React from "react";
 import type { HeadFC } from "gatsby";
 import Layout from "../components/layout";
-import { PanZoom } from "../core-react";
+import { PanZoom, PanZoomSpring } from "../core-react";
 
 const IndexPage = () => {
   return (

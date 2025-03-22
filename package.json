@@ -1,10 +1,10 @@
 {
   "name": "@tallman5/core-react",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Reusable React components and services",
-  "author": "Joseph McGurkin <joseph@mcgurkin.net>",
+  "author": "tallman5",
   "main": "dist/index.js",
-  "license": "ISC",
+  "license": "CC-BY-NC-SA-4.0",
   "files": [
     "/dist",
     "!/dist/**/*.js.map",

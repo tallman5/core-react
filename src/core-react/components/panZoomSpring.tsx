@@ -3,8 +3,8 @@ import { useSpring, animated } from '@react-spring/web';
 
 interface PanZoomSpringProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
-    minScale?: number; // Customizable minimum zoom level
-    maxScale?: number; // Customizable maximum zoom level
+    minScale?: number;
+    maxScale?: number;
 }
 
 export const PanZoomSpring: React.FC<PanZoomSpringProps> = ({
@@ -16,68 +16,58 @@ export const PanZoomSpring: React.FC<PanZoomSpringProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const isPanning = useRef(false);
     const startPosition = useRef({ x: 0, y: 0 });
+    const lastDistance = useRef<number | null>(null);
 
-    // State for scale and position
     const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
-    // react-spring animation for smooth transitions
     const [{ transform }, api] = useSpring(() => ({
         transform: `translate(0px, 0px) scale(1)`,
     }));
 
-    // Handle wheel event for zooming
     const handleWheel = useCallback(
         (event: React.WheelEvent<HTMLDivElement>) => {
             event.preventDefault();
+            event.stopPropagation();
+            if (event.ctrlKey) return;
 
-            // Normalize the wheel delta to make the zoom smoother
-            const delta = event.deltaY * -0.001; // Smaller multiplier for smoother zoom
+            const delta = -event.deltaY * 0.001;
             const newScale = Math.min(Math.max(minScale, scale * (1 + delta)), maxScale);
 
-            // Calculate the mouse position relative to the container
             const rect = containerRef.current!.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
 
-            // Adjust position to ensure the point under cursor remains fixed
             const scaleRatio = newScale / scale;
-            const newX = position.x + (mouseX - position.x) * (1 - scaleRatio);
-            const newY = position.y + (mouseY - position.y) * (1 - scaleRatio);
+            const newX = mouseX - (mouseX - position.x) * scaleRatio;
+            const newY = mouseY - (mouseY - position.y) * scaleRatio;
 
-            // Update state and spring animation
             setScale(newScale);
             setPosition({ x: newX, y: newY });
-            api.start({
-                transform: `translate(${newX}px, ${newY}px) scale(${newScale})`,
-            });
+            api.start({ transform: `translate(${newX}px, ${newY}px) scale(${newScale})` });
         },
         [scale, position, minScale, maxScale, api]
     );
 
-    // Handle mouse down event for panning
     const handleMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
+        containerRef.current!.style.cursor = 'grabbing';
+        event.preventDefault();
         isPanning.current = true;
-        startPosition.current = {
-            x: event.pageX - position.x,
-            y: event.pageY - position.y,
-        };
+        startPosition.current = { x: event.pageX - position.x, y: event.pageY - position.y };
 
         const handleMouseMove = (event: MouseEvent) => {
             if (!isPanning.current) return;
             event.preventDefault();
             const newX = event.pageX - startPosition.current.x;
             const newY = event.pageY - startPosition.current.y;
-
-            // Update state and spring animation
             setPosition({ x: newX, y: newY });
-            api.start({
-                transform: `translate(${newX}px, ${newY}px) scale(${scale})`,
-            });
+            api.start({ transform: `translate(${newX}px, ${newY}px) scale(${scale})` });
         };
 
         const handleMouseUp = () => {
+            isPanning.current = false;
+            containerRef.current!.style.cursor = 'grab';
             isPanning.current = false;
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
@@ -87,53 +77,63 @@ export const PanZoomSpring: React.FC<PanZoomSpringProps> = ({
         document.addEventListener('mouseup', handleMouseUp);
     }, [position, scale, api]);
 
-    // Handle touch events for mobile devices
     const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-        if (event.touches.length === 1) {
-            // Single touch for panning
+        if (event.touches.length === 2) {
             event.preventDefault();
+            event.stopPropagation();
+            const distance = Math.hypot(
+                event.touches[0].pageX - event.touches[1].pageX,
+                event.touches[0].pageY - event.touches[1].pageY
+            );
+            lastDistance.current = distance;
+        } else if (event.touches.length === 1) {
             isPanning.current = true;
-            startPosition.current = {
-                x: event.touches[0].pageX - position.x,
-                y: event.touches[0].pageY - position.y,
-            };
+            startPosition.current = { x: event.touches[0].pageX - position.x, y: event.touches[0].pageY - position.y };
         }
     }, [position]);
 
     const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-        if (event.touches.length === 1 && isPanning.current) {
-            // Single touch for panning
+        if (event.touches.length === 2 && lastDistance.current !== null) {
             event.preventDefault();
-            const newX = event.touches[0].pageX - startPosition.current.x;
-            const newY = event.touches[0].pageY - startPosition.current.y;
+            event.stopPropagation();
+            const distance = Math.hypot(
+                event.touches[0].pageX - event.touches[1].pageX,
+                event.touches[0].pageY - event.touches[1].pageY
+            );
+            const scaleFactor = distance / lastDistance.current;
+            const newScale = Math.min(Math.max(minScale, scale * scaleFactor), maxScale);
+            lastDistance.current = distance;
 
-            // Update state and spring animation
+            const rect = containerRef.current!.getBoundingClientRect();
+            const centerX = (event.touches[0].pageX + event.touches[1].pageX) / 2 - rect.left;
+            const centerY = (event.touches[0].pageY + event.touches[1].pageY) / 2 - rect.top;
+
+            const scaleRatio = newScale / scale;
+            const newX = centerX - (centerX - position.x) * scaleRatio;
+            const newY = centerY - (centerY - position.y) * scaleRatio;
+
+            setScale(newScale);
             setPosition({ x: newX, y: newY });
-            api.start({
-                transform: `translate(${newX}px, ${newY}px) scale(${scale})`,
-            });
+            api.start({ transform: `translate(${newX}px, ${newY}px) scale(${newScale})` });
         }
-    }, [scale, api]);
+    }, [scale, position, minScale, maxScale, api]);
 
     const handleTouchEnd = useCallback(() => {
         isPanning.current = false;
+        lastDistance.current = null;
     }, []);
 
-    // Handle double-click to reset zoom and pan
     const handleDoubleClick = useCallback(() => {
-        // Reset scale and position
         setScale(1);
         setPosition({ x: 0, y: 0 });
-        api.start({
-            transform: `translate(0px, 0px) scale(1)`,
-        });
+        api.start({ transform: `translate(0px, 0px) scale(1)` });
     }, [api]);
 
-    // Memoized styles for performance optimization
     const containerStyle: React.CSSProperties = {
         width: '100%',
         height: '100%',
         overflow: 'hidden',
+        touchAction: 'none',
         cursor: isPanning.current ? 'grabbing' : 'grab',
         position: 'relative',
         ...props.style,
