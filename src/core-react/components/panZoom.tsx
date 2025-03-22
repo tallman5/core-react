@@ -44,10 +44,12 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         (event: React.WheelEvent<HTMLDivElement>) => {
             event.preventDefault();
 
+            if (!containerRef.current) return; // Ensure the ref is not null
+
             const delta = event.deltaY * -0.001;
             const newScale = Math.min(Math.max(minScale, targetScale.current * (1 + delta)), maxScale);
 
-            const rect = containerRef.current!.getBoundingClientRect();
+            const rect = containerRef.current.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
 
@@ -62,6 +64,17 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         },
         [minScale, maxScale, position]
     );
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener('wheel', handleWheel as unknown as EventListener, { passive: false });
+
+        return () => {
+            container.removeEventListener('wheel', handleWheel as unknown as EventListener);
+        };
+    }, [handleWheel]);
 
     const handleMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -90,6 +103,27 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         document.addEventListener('mouseup', handleMouseUp);
     }, [position]);
 
+    const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
+        if (event.touches.length === 1 && isPanning.current) {
+            event.preventDefault();
+            targetPosition.current = {
+                x: event.touches[0].pageX - startPosition.current.x,
+                y: event.touches[0].pageY - startPosition.current.y,
+            };
+        }
+    }, []);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener('touchmove', handleTouchMove as unknown as EventListener, { passive: false });
+
+        return () => {
+            container.removeEventListener('touchmove', handleTouchMove as unknown as EventListener);
+        };
+    }, [handleTouchMove]);
+
     const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
         if (event.touches.length === 1) {
             event.preventDefault();
@@ -101,15 +135,16 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         }
     }, [position]);
 
-    const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-        if (event.touches.length === 1 && isPanning.current) {
-            event.preventDefault();
-            targetPosition.current = {
-                x: event.touches[0].pageX - startPosition.current.x,
-                y: event.touches[0].pageY - startPosition.current.y,
-            };
-        }
-    }, []);
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener('touchstart', handleTouchStart as unknown as EventListener, { passive: false });
+
+        return () => {
+            container.removeEventListener('touchstart', handleTouchStart as unknown as EventListener);
+        };
+    }, [handleTouchStart]);
 
     const handleTouchEnd = useCallback(() => {
         isPanning.current = false;
@@ -145,10 +180,7 @@ export const PanZoom: React.FC<PanZoomProps> = ({
         <div
             {...props}
             ref={containerRef}
-            onWheel={handleWheel}
             onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onDoubleClick={handleDoubleClick}
             style={containerStyle}
