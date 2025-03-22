@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 export interface IEnumEntry {
     key: string;
@@ -23,17 +23,25 @@ export const getEnumEntries = (enumObj: any): IEnumEntry[] => {
 export function EnumDropdown<T extends Record<string, string | number>>(
     { enumObject, defaultValue, onEnumChanged, ...rest }: EnumDropdownProps<T>) {
 
-    const enumEntries = getEnumEntries(enumObject);
+    const enumEntries = useMemo(() => getEnumEntries(enumObject), [enumObject]);
+    const [selectedValue, setSelectedValue] = useState<T[keyof T]>(defaultValue);
+
+    useEffect(() => {
+        setSelectedValue(defaultValue);
+    }, [defaultValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedValue = Object.entries(enumObject).find(([key, value]) => value.toString() === e.target.value)?.[1];
-        if (selectedValue && onEnumChanged) {
-            onEnumChanged(selectedValue as T[keyof T]);
+        const newValue = Object.entries(enumObject).find(([key, value]) => value.toString() === e.target.value)?.[1];
+        if (newValue) {
+            setSelectedValue(newValue as T[keyof T]);
+            if (onEnumChanged) {
+                onEnumChanged(newValue as T[keyof T]);
+            }
         }
     };
 
     return (
-        <select defaultValue={defaultValue} onChange={handleChange} {...rest}>
+        <select value={selectedValue} onChange={handleChange} {...rest}>
             {enumEntries.map((entry) => (
                 <option key={entry.key} value={entry.value}>
                     {entry.key}

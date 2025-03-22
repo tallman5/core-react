@@ -5,6 +5,8 @@ export * from './enumDropdown';
 export * from './expander';
 export * from './floatingTextbox';
 export * from './masonry';
+export * from './panZoom';
+export * from './panZoomSpring';
 export * from './seo';
 export * from './stringify';
 export * from './timeoutBar';
